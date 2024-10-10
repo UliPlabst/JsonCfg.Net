@@ -9,7 +9,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/JsonCfg.Net/JsonCfg.Net.csproj",
+        "${workspaceFolder}/JsonCfg.Net.Debug/JsonCfg.Net.Debug.csproj",
         "/property:GenerateFullPaths=true",
         "/p:Platform=x64",
         "/consoleloggerparameters:NoSummary",

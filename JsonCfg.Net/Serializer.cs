@@ -12,6 +12,11 @@ public class SerializerSettings
     public bool SpacedBraces { get; set; } = true;
 }
 
+internal record WriteOptions(
+    bool SkipLeadingComments = false,
+    bool SkipTrailingComments = false
+){}
+
 internal class JsonWriter(SerializerSettings settings)
 {
     private readonly StringBuilder _sb = new();
@@ -65,19 +70,19 @@ internal class JsonWriter(SerializerSettings settings)
         return comments.Count > 0;
     }
     
-    public void WriteObject(JsonObject obj)
+    public void WriteObject(JsonObject obj, WriteOptions? options = null)
     {
         if (obj.FormattingHint == FormattingHint.Inline && CanWriteInline(obj))
         {
-            WriteObjectInline(obj);
+            WriteObjectInline(obj, options);
         }
         else if (!obj.FormattingHint.HasValue || obj.FormattingHint == FormattingHint.Multiline)
         {
-            WriteObjectMultiline(obj);
+            WriteObjectMultiline(obj, options);
         }
     }
     
-    public void WriteObjectInline(JsonObject obj)
+    public void WriteObjectInline(JsonObject obj, WriteOptions? options = null)
     {
         WriteComments(obj.Trivia.LeadingComments);
         Append("{");
@@ -111,10 +116,11 @@ internal class JsonWriter(SerializerSettings settings)
         if(settings.SpacedBraces)
             Append(" ");
         Append("}");
-        WriteComments(obj.Trivia.TrailingComments);
+        if(options?.SkipTrailingComments != true)
+            WriteComments(obj.Trivia.TrailingComments);
     }
 
-    public void WriteObjectMultiline(JsonObject obj)
+    public void WriteObjectMultiline(JsonObject obj, WriteOptions? options = null)
     {
         WriteComments(obj.Trivia.LeadingComments);
         Append("{");
@@ -139,11 +145,12 @@ internal class JsonWriter(SerializerSettings settings)
             WriteIndent();
             Append($"\"{prop.Key}\": ");
             WriteComments(prop.Trivia.TrailingComments);
-            Write(prop.Value);
+            Write(prop.Value, new(SkipTrailingComments: true));
 
             if (!isLast)
             {
                 Append(",");
+                WriteComments(prop.Value.Trivia.TrailingComments);
                 var next = props[i + 1];
                 WriteComments(next.Trivia.LeadingComments);
                 Append(Environment.NewLine);
@@ -151,6 +158,7 @@ internal class JsonWriter(SerializerSettings settings)
             else if (settings.WriteTrailingCommas || prop.HasTrailingComma)
             {
                 Append(",");
+                WriteComments(prop.Value.Trivia.TrailingComments);
             }
 
         }
@@ -162,14 +170,16 @@ internal class JsonWriter(SerializerSettings settings)
             WriteIndent();
         }
         Append("}");
-        WriteComments(obj.Trivia.TrailingComments);
+        if(options?.SkipTrailingComments != true)
+            WriteComments(obj.Trivia.TrailingComments);
     }
 
-    public void WriteValue(JsonValue value)
+    public void WriteValue(JsonValue value, WriteOptions? options = null)
     {
         WriteComments(value.Trivia.LeadingComments);
         Append(value.StringValue);
-        WriteComments(value.Trivia.TrailingComments);
+        if(options?.SkipTrailingComments != true)
+            WriteComments(value.Trivia.TrailingComments);
     }
 
     public void Append(string str)
@@ -178,14 +188,14 @@ internal class JsonWriter(SerializerSettings settings)
         // Console.WriteLine(_sb.ToString());
     }
 
-    public void Write(JsonNode node)
+    public void Write(JsonNode node, WriteOptions? options = null)
     {
         if (node is JsonArray array)
-            WriteArray(array);
+            WriteArray(array, options);
         else if (node is JsonObject obj)
-            WriteObject(obj);
+            WriteObject(obj, options);
         else if (node is JsonValue value)
-            WriteValue(value);
+            WriteValue(value, options);
         else
             throw new InvalidOperationException($"Invalid node type {node}");
     }
@@ -202,19 +212,19 @@ internal class JsonWriter(SerializerSettings settings)
             );
     }
     
-    public void WriteArray(JsonArray array)
+    public void WriteArray(JsonArray array, WriteOptions? options = null)
     {
         if (array.FormattingHint == FormattingHint.Inline && CanWriteInline(array))
         {
-            WriteArrayInline(array);
+            WriteArrayInline(array, options);
         }
         else if (!array.FormattingHint.HasValue || array.FormattingHint == FormattingHint.Multiline)
         {
-            WriteArrayMultiline(array);
+            WriteArrayMultiline(array, options);
         }
     }
 
-    public void WriteArrayInline(JsonArray array)
+    public void WriteArrayInline(JsonArray array, WriteOptions? options = null)
     {
         WriteComments(array.Trivia.LeadingComments);
         Append("[");
@@ -243,10 +253,11 @@ internal class JsonWriter(SerializerSettings settings)
         if(settings.SpacedBraces)
             Append(" ");
         Append("]");
-        WriteComments(array.Trivia.TrailingComments);
+        if(options?.SkipTrailingComments != true)
+            WriteComments(array.Trivia.TrailingComments);
     }
 
-    public void WriteArrayMultiline(JsonArray array)
+    public void WriteArrayMultiline(JsonArray array, WriteOptions? options = null)
     {
         WriteComments(array.Trivia.LeadingComments);
         Append("[");
@@ -268,11 +279,11 @@ internal class JsonWriter(SerializerSettings settings)
             }
 
             WriteIndent();
-            Write(item);
-            WriteComments(item.Trivia.TrailingComments);
+            Write(item, new(SkipTrailingComments: true));
             if (!isLast)
             {
                 Append(",");
+                WriteComments(item.Trivia.TrailingComments);
                 var next = array.Items[i + 1];
                 WriteComments(next.Trivia.LeadingComments);
                 Append(Environment.NewLine);
@@ -280,6 +291,7 @@ internal class JsonWriter(SerializerSettings settings)
             else if (settings.WriteTrailingCommas)
             {
                 Append(",");
+                WriteComments(item.Trivia.TrailingComments);
             }
 
         }
@@ -291,8 +303,8 @@ internal class JsonWriter(SerializerSettings settings)
             WriteIndent();
         }
         Append("]");
-        WriteComments(array.Trivia.TrailingComments);
-
+        if(options?.SkipTrailingComments != true)
+            WriteComments(array.Trivia.TrailingComments);
     }
 
 

@@ -9,7 +9,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/JsonCfg.Net/bin/x64/Debug/net8.0/JsonCfg.Net.dll",
+      "program": "${workspaceFolder}/JsonCfg.Net.Debug/bin/x64/Debug/net8.0/JsonCfg.Net.Debug.dll",
       "args": [],
       "cwd": "${workspaceFolder}",
       "stopAtEntry": false,

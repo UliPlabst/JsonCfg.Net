@@ -39,10 +39,10 @@ json = Serializer.Serialize(jo, serializerSettings);
 Console.WriteLine(json);
 // Prints
 // {
-//  //Comment
-//  "hello": "world", //I am a comment
-//  "test": 123,
-//  "new": { "prop": true }
+//   //Comment
+//   "hello": "world"  //I am a comment,
+//   "test": 123,
+//   "new": { "prop": true }
 // }
 ```
 

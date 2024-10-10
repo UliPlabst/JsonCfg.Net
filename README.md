@@ -40,7 +40,7 @@ Console.WriteLine(json);
 // Prints
 // {
 //   //Comment
-//   "hello": "world"  //I am a comment,
+//   "hello": "world",  //I am a comment
 //   "test": 123,
 //   "new": { "prop": true }
 // }

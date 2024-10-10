@@ -24,7 +24,7 @@ jo["test"] = JsonValue.FromObject(123);
 
 var newObject = new JsonObject();
 newObject["prop"] = JsonValue.FromObject(true);
-newObject.FormattingHint = FormattinHint.Inline;
+newObject.FormattingHint = FormattingHint.Inline;
 jo["new"] = newObject;
 
 var serializerSettings = new SerializerSettings

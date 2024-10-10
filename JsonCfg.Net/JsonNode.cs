@@ -1,4 +1,7 @@
-﻿namespace JsonCfgNet;
+﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
+
+namespace JsonCfgNet;
 
 public enum JsonNodeKind
 {
@@ -41,9 +44,10 @@ public abstract class JsonNode
             
             if(current is JsonObject obj)
             {
-                for(var i=obj.Properties.Count-1; i>= 0; i--)
+                var props = obj.Properties.Values.ToList();
+                for(var i=props.Count-1; i>= 0; i--)
                 {
-                   stack.Insert(0, obj.Properties[i]); 
+                   stack.Insert(0, props[i]); 
                 }
             }   
             else if(current is JsonArray arr)
@@ -109,10 +113,73 @@ public class JsonProperty : JsonNode
     public JsonNode Value { get; set; }
 }
 
-public class JsonObject: JsonNode
+public class JsonObject: JsonNode, IDictionary<string, JsonNode>
 {
+    public JsonNode? this[string key]
+    {
+        get 
+        {
+            if(TryGetValue(key, out var value))
+                return value;
+            return null!;    
+        }
+        set 
+        {
+            Properties[key] = new JsonProperty
+            {
+                Key = key,
+                Value = value!
+            };
+        }
+    }
+
     public override JsonNodeKind Kind => JsonNodeKind.Object;
-    public List<JsonProperty> Properties { get; set; } = [];
+    public Dictionary<string, JsonProperty> Properties { get; set; } = [];
+    public ICollection<string> Keys { get; } 
+    public ICollection<JsonNode> Values { get; }
+    public int Count { get; }
+    public bool IsReadOnly { get; }
+
+    public void Add(string key, JsonNode value) => Properties.Add(key, new JsonProperty
+    {
+        Key = key,
+        Value = value
+    });
+
+    public void Add(KeyValuePair<string, JsonNode> item) => Add(item.Key, item.Value);
+
+    public void Clear() => Properties.Clear();
+    public bool Contains(KeyValuePair<string, JsonNode> item) => Properties.Any(e => e.Key == item.Key && e.Value.Value == item.Value);
+    public bool ContainsKey(string key) => Properties.ContainsKey(key);
+
+    public void CopyTo(KeyValuePair<string, JsonNode>[] array, int arrayIndex) 
+    {
+        if(array.Length + arrayIndex < Properties.Count)
+            throw new ArgumentException("Array is too small", nameof(array));
+        foreach(var a in Properties)
+        {
+            array[arrayIndex++] = new KeyValuePair<string, JsonNode>(a.Key, a.Value.Value);
+        }
+    }
+
+    public IEnumerator<KeyValuePair<string, JsonNode>> GetEnumerator() 
+        => Properties.Select(e => new KeyValuePair<string, JsonNode>(e.Key, e.Value)).GetEnumerator();
+
+    public bool Remove(string key) => Properties.Remove(key);
+    public bool Remove(KeyValuePair<string, JsonNode> item) => Remove(item.Key);
+
+    public bool TryGetValue(string key, [NotNullWhen(true)] out JsonNode? value)
+    {
+        if(Properties.TryGetValue(key, out var prop))
+        {
+            value = prop.Value;
+            return true;
+        }
+        value = null;
+        return false;
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
 public class JsonArray : JsonNode

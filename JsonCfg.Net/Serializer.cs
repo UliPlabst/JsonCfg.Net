@@ -83,9 +83,11 @@ internal class JsonWriter(SerializerSettings settings)
         Append("{");
         if(settings.SpacedBraces)
             Append(" ");
-        for (int i = 0; i < obj.Properties.Count; i++)
+            
+        var props = obj.Properties.Values.ToList();
+        for (int i = 0; i < props.Count; i++)
         {
-            var prop = obj.Properties[i];
+            var prop = props[i];
             var isLast = i == obj.Properties.Count - 1;
             
             WriteComments(prop.Trivia.LeadingComments, true);
@@ -96,7 +98,7 @@ internal class JsonWriter(SerializerSettings settings)
             if (!isLast)
             {
                 Append(",");
-                var next = obj.Properties[i + 1];
+                var next = props[i + 1];
                 WriteComments(next.Trivia.LeadingComments);
             }
             else if (settings.WriteTrailingCommas || prop.HasTrailingComma)
@@ -119,10 +121,11 @@ internal class JsonWriter(SerializerSettings settings)
         if (obj.Properties.Count > 0 || obj.Trivia.ContainedComments?.Count > 0)
             Append(Environment.NewLine);
         _indentLevel++;
-        for (int i = 0; i < obj.Properties.Count; i++)
+        var props = obj.Properties.Values.ToList();
+        for (int i = 0; i < props.Count; i++)
         {
             var isLast = i == obj.Properties.Count - 1;
-            var prop = obj.Properties[i];
+            var prop = props[i];
             if (i == 0)
             {
                 if (prop.Trivia.LeadingComments?.Count > 0)
@@ -141,7 +144,7 @@ internal class JsonWriter(SerializerSettings settings)
             if (!isLast)
             {
                 Append(",");
-                var next = obj.Properties[i + 1];
+                var next = props[i + 1];
                 WriteComments(next.Trivia.LeadingComments);
                 Append(Environment.NewLine);
             }

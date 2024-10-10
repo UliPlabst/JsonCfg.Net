@@ -41,7 +41,7 @@ internal class Parser
             TokenKind.NULL => new JsonValue(JsonValueKind.Null, token.Value),
             _ => throw new JsonCfgException($"Unexpected token: {token.Kind}")
         };
-        stream.GetNextToken();
+        stream.TryGetNextToken(out _);
         var trailingComments = MaybeParseComments(stream);
         result.Trivia.TrailingComments = trailingComments;
         return result;
@@ -120,7 +120,7 @@ internal class Parser
             }
                 
             token = stream.Current;
-            res.Properties.Add(prop);
+            res.Properties[prop.Key] = prop;
             if (token.Kind == TokenKind.COMMA)
             {
                 prop.HasTrailingComma = true;

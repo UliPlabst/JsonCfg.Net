@@ -109,13 +109,13 @@ public enum FormattingHint
 public class JsonProperty : JsonNode
 {
     public override JsonNodeKind Kind => JsonNodeKind.Property;
-    public string Key { get; set; }
-    public JsonNode Value { get; set; }
+    public required string Key { get; set; }
+    public required JsonNode Value { get; set; }
 }
 
 public class JsonObject: JsonNode, IDictionary<string, JsonNode>
 {
-    public JsonNode? this[string key]
+    public JsonNode this[string key]
     {
         get 
         {
@@ -135,10 +135,10 @@ public class JsonObject: JsonNode, IDictionary<string, JsonNode>
 
     public override JsonNodeKind Kind => JsonNodeKind.Object;
     public Dictionary<string, JsonProperty> Properties { get; set; } = [];
-    public ICollection<string> Keys { get; } 
-    public ICollection<JsonNode> Values { get; }
-    public int Count { get; }
-    public bool IsReadOnly { get; }
+    public ICollection<string> Keys => Properties.Keys;
+    public ICollection<JsonNode> Values => Properties.Values.Select(e => e.Value).ToList();
+    public int Count => Properties.Count;
+    public bool IsReadOnly => false;
 
     public void Add(string key, JsonNode value) => Properties.Add(key, new JsonProperty
     {

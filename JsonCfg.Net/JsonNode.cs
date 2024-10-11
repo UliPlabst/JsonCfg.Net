@@ -81,21 +81,21 @@ public class JsonValue: JsonNode
     public static JsonValue FromObject(object? value)
     {
         return value switch {
-            null => new JsonValue(JsonValueKind.Null, "null"),
-            string s => new JsonValue(JsonValueKind.String, s),
-            int i => new JsonValue(JsonValueKind.Number, i.ToString()),
-            long l => new JsonValue(JsonValueKind.Number, l.ToString()),
-            float f => new JsonValue(JsonValueKind.Number, f.ToString()),
-            double d => new JsonValue(JsonValueKind.Number, d.ToString()),
-            decimal d => new JsonValue(JsonValueKind.Number, d.ToString()),
-            bool b => new JsonValue(JsonValueKind.Boolean, b.ToString().ToLowerInvariant()),
-            DateTime dt => new JsonValue(JsonValueKind.String, dt.ToString("o")),
-            DateTimeOffset dto => new JsonValue(JsonValueKind.String, dto.ToString("o")),
-            Guid g => new JsonValue(JsonValueKind.String, g.ToString()),
-            TimeSpan ts => new JsonValue(JsonValueKind.String, ts.ToString()),
-            DateOnly dto => new JsonValue(JsonValueKind.String, dto.ToString()),
-            TimeOnly to => new JsonValue(JsonValueKind.String, to.ToString()),
-            _ => throw new ArgumentException("Unsupported value type")
+            null               => new JsonValue(JsonValueKind.Null, "null"),
+            string s           => new JsonValue(JsonValueKind.String, $"\"{s}\""),
+            int i              => new JsonValue(JsonValueKind.Number, i.ToString()),
+            long l             => new JsonValue(JsonValueKind.Number, l.ToString()),
+            float f            => new JsonValue(JsonValueKind.Number, f.ToString()),
+            double d           => new JsonValue(JsonValueKind.Number, d.ToString()),
+            decimal d          => new JsonValue(JsonValueKind.Number, d.ToString()),
+            bool b             => new JsonValue(JsonValueKind.Boolean, b.ToString().ToLowerInvariant()),
+            DateTime dt        => new JsonValue(JsonValueKind.String, $"\"{dt:o}\""),
+            DateTimeOffset dto => new JsonValue(JsonValueKind.String, $"\"{dto:o}\""),
+            Guid g             => new JsonValue(JsonValueKind.String, $"\"{g}\""),
+            TimeSpan ts        => new JsonValue(JsonValueKind.String, $"\"{ts}\""),
+            DateOnly dto       => new JsonValue(JsonValueKind.String, $"\"{dto}\""),
+            TimeOnly to        => new JsonValue(JsonValueKind.String, $"\"{to}\""),
+            _                  => throw new ArgumentException("Unsupported value type")
         };
     }
 }

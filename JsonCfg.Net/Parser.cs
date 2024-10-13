@@ -62,7 +62,7 @@ internal class Parser
                     TokenKind.INLINE_COMMENT => JsonCommentKind.Inline,
                     _ => throw new JsonCfgException($"Unexpected token: {stream.Current.Kind}")
                 },
-                Comment = stream.Current.Value!,
+                Comment = stream.Current.Value!.Trim(),
                 LeadingNewline = stream.Last != null 
                     && stream.Last.End.Line != stream.Current.Start.Line
             };

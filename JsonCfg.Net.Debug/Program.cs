@@ -2,18 +2,24 @@
 using JsonCfgNet;
 
 var json = @"{
- //Comment
- ""hello"": ""world"" //I am a comment
+    // Comment at the start
+    ""person"": {
+        ""name"": ""Alice"",
+        ""age"": 25 /* Inline age comment */,
+        ""hobbies"": [  ""reading"" /*asd*/ , /*asd*/ ""hiking"" ]  // Hobbies listed here
+    },
+    ""meta"": { /* Metadata block */
+        /*preprop*/ ""created"" /*postprop*/: /*preval*/ ""2024-10-01"" /*postval*/, // Creation date
+        ""updated"": ""2024-10-12""  // Last updated date
+    }
 }";
 
-var node = JsonNode.Parse(json);
-var jo = (JsonObject)node;
-jo["test"] = JsonValue.FromObject(123);
+json = File.ReadAllText("D:/Projects/primus/resources/config.json");
 
-var newObject = new JsonObject();
-newObject["prop"] = JsonValue.FromObject(true);
-newObject.FormattingHint = FormattingHint.Inline;
-jo["new"] = newObject;
+var node = JsonNode.Parse(json);
+// var jo = (JsonObject)node;
+
+// jo["meta"].AsObject()["author"] = JsonValue.FromObject("Tester");  // Add new metadata
 
 var serializerSettings = new SerializerSettings
 {
@@ -23,5 +29,6 @@ var serializerSettings = new SerializerSettings
     SpaceToInlineComments = 2,
     SpacedBraces = true,
 };
-json = Serializer.Serialize(jo, serializerSettings);
-Console.WriteLine(json);
+
+var serializedJson = Serializer.Serialize(node, serializerSettings);
+Console.WriteLine(serializedJson);

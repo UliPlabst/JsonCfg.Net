@@ -32,7 +32,8 @@ var serializerSettings = new SerializerSettings
   WriteComments = true,
   Indent = "  ",
   WriteTrailingCommas = false,
-  SpaceToInlineComments = 2,
+  SpaceToInlineComments = 1,
+  SpaceToLineComments = 1,
   SpacedBraces = true,
 };
 json = Serializer.Serialize(jo, serializerSettings);

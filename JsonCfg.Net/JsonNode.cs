@@ -27,6 +27,8 @@ public abstract class JsonNode
     public Trivia Trivia { get; set; } = new Trivia();
     public bool HasTrailingComma { get; set; }
     
+    public abstract bool WillBreakLine { get; }
+    
     public static JsonNode Parse(string input)
         => Parser.Instance.Parse(input);
     
@@ -72,6 +74,11 @@ public class JsonValue: JsonNode
     private string _value { get; set; }
     public string StringValue => _value;
 
+    public override bool WillBreakLine 
+        => (Trivia.LeadingComments?.Any(e => e.WillBreakLine) ?? false)
+        || (Trivia.ContainedComments?.Any(e => e.WillBreakLine) ?? false)
+        || (Trivia.TrailingComments?.Any(e => e.WillBreakLine) ?? false);
+    
     public JsonValue(JsonValueKind valueKind, string stringValue)
     {
         ValueKind = valueKind;
@@ -111,27 +118,22 @@ public class JsonProperty : JsonNode
     public override JsonNodeKind Kind => JsonNodeKind.Property;
     public required string Key { get; set; }
     public required JsonNode Value { get; set; }
+
+    public override bool WillBreakLine 
+        => Value.WillBreakLine
+        || (Trivia.LeadingComments?.Any(e => e.WillBreakLine) ?? false)
+        || (Trivia.ContainedComments?.Any(e => e.WillBreakLine) ?? false)
+        || (Trivia.TrailingComments?.Any(e => e.WillBreakLine) ?? false);
 }
 
 public class JsonObject: JsonNode, IDictionary<string, JsonNode>
 {
-    public JsonNode this[string key]
-    {
-        get 
-        {
-            if(TryGetValue(key, out var value))
-                return value;
-            return null!;    
-        }
-        set 
-        {
-            Properties[key] = new JsonProperty
-            {
-                Key = key,
-                Value = value!
-            };
-        }
-    }
+    public override bool WillBreakLine 
+        => FormattingHint != JsonCfgNet.FormattingHint.Inline
+        || (Trivia.LeadingComments?.Any(e => e.WillBreakLine) ?? false)
+        || (Trivia.ContainedComments?.Any(e => e.WillBreakLine) ?? false)
+        || (Trivia.TrailingComments?.Any(e => e.WillBreakLine) ?? false)
+        || Properties.Any(e => e.Value.WillBreakLine);
 
     public override JsonNodeKind Kind => JsonNodeKind.Object;
     public Dictionary<string, JsonProperty> Properties { get; set; } = [];
@@ -178,14 +180,51 @@ public class JsonObject: JsonNode, IDictionary<string, JsonNode>
         value = null;
         return false;
     }
+    
+    public JsonNode this[string key]
+    {
+        get 
+        {
+            if(TryGetValue(key, out var value))
+                return value;
+            return null!;    
+        }
+        set 
+        {
+            Properties[key] = new JsonProperty
+            {
+                Key = key,
+                Value = value!
+            };
+        }
+    }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-public class JsonArray : JsonNode
+public class JsonArray : JsonNode, ICollection<JsonNode>
 {
     public override JsonNodeKind Kind => JsonNodeKind.Array;
     public List<JsonNode> Items { get; set; } = [];
+    
+    public override bool WillBreakLine 
+        => FormattingHint != JsonCfgNet.FormattingHint.Inline
+        || (Trivia.LeadingComments?.Any(e => e.WillBreakLine) ?? false)
+        || (Trivia.ContainedComments?.Any(e => e.WillBreakLine) ?? false)
+        || (Trivia.TrailingComments?.Any(e => e.WillBreakLine) ?? false)
+        || Items.Any(e => e.WillBreakLine);
+
+    public int Count => Items.Count;
+
+    public bool IsReadOnly => false;
+
+    public void Add(JsonNode item) => Items.Add(item);
+    public void Clear() => Items.Clear();
+    public bool Contains(JsonNode item) => Items.Contains(item);
+    public void CopyTo(JsonNode[] array, int arrayIndex) => Items.CopyTo(array, arrayIndex);
+    public IEnumerator<JsonNode> GetEnumerator() => Items.GetEnumerator();
+    public bool Remove(JsonNode item) => Items.Remove(item);
+    IEnumerator IEnumerable.GetEnumerator() => Items.GetEnumerator();
 }
 
 public enum JsonCommentKind
@@ -200,7 +239,7 @@ public class JsonComment : JsonNode
     public JsonCommentKind CommentKind { get; set; }
     public required string Comment { get; set; }
     public required bool LeadingNewline { get; set; }
-    public bool WillBreakLine => LeadingNewline || Comment.Contains(Environment.NewLine);
+    public override bool WillBreakLine => LeadingNewline || Comment.Contains(Environment.NewLine);
 }
 
 public class Trivia

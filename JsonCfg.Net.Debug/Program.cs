@@ -1,34 +1,31 @@
-﻿// See https://aka.ms/new-console-template for more information
-using JsonCfgNet;
+﻿using JsonCfgNet;
 
 var json = @"{
-    // Comment at the start
-    ""person"": {
-        ""name"": ""Alice"",
-        ""age"": 25 /* Inline age comment */,
-        ""hobbies"": [  ""reading"" /*asd*/ , /*asd*/ ""hiking"" ]  // Hobbies listed here
-    },
-    ""meta"": { /* Metadata block */
-        /*preprop*/ ""created"" /*postprop*/: /*preval*/ ""2024-10-01"" /*postval*/, // Creation date
-        ""updated"": ""2024-10-12""  // Last updated date
-    }
+ //Comment
+ ""hello"": ""world"", //I am a comment
+ ""test"": /*i am an inline comment */ true,
 }";
 
-json = File.ReadAllText("D:/Projects/primus/resources/config.json");
-
 var node = JsonNode.Parse(json);
-// var jo = (JsonObject)node;
+var jo = (JsonObject)node;
+jo["value"] = JsonValue.FromObject(123);
+var oldTest = jo["test"];
+jo["test"] = JsonValue.FromObject(false);
+jo["test"].Trivia = oldTest.Trivia; //copy the old comments to the new node
 
-// jo["meta"].AsObject()["author"] = JsonValue.FromObject("Tester");  // Add new metadata
+var newObject = new JsonObject();
+newObject["prop"] = JsonValue.FromObject(true);
+newObject.FormattingHint = FormattingHint.Inline;
+jo["new"] = newObject;
 
 var serializerSettings = new SerializerSettings
 {
-    WriteComments = true,
-    Indent = "  ",
-    WriteTrailingCommas = false,
-    SpaceToInlineComments = 2,
-    SpacedBraces = true,
+  WriteComments = true,
+  Indent = "  ",
+  WriteTrailingCommas = false,
+  SpaceToInlineComments = 1,
+  SpaceToLineComments = 1,
+  SpacedBraces = true,
 };
-
-var serializedJson = Serializer.Serialize(node, serializerSettings);
-Console.WriteLine(serializedJson);
+json = Serializer.Serialize(jo, serializerSettings);
+Console.WriteLine(json);

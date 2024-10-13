@@ -191,11 +191,18 @@ public class JsonObject: JsonNode, IDictionary<string, JsonNode>
         }
         set 
         {
-            Properties[key] = new JsonProperty
+            if(Properties.TryGetValue(key, out var prop))
             {
-                Key = key,
-                Value = value!
-            };
+                prop.Value = value;
+            }
+            else
+            {
+                Properties.Add(key, new JsonProperty
+                {
+                    Key = key,
+                    Value = value
+                });
+            }
         }
     }
 

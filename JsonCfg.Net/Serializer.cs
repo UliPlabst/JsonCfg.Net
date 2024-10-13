@@ -131,7 +131,6 @@ internal class JsonWriter(SerializerSettings settings)
             {
                 Append(",");
             }
-
         }
         WriteComments(obj.Trivia.ContainedComments);
         if(settings.SpacedBraces)
@@ -145,7 +144,12 @@ internal class JsonWriter(SerializerSettings settings)
     {
         WriteComments(obj.Trivia.LeadingComments);
         Append("{");
-        if (obj.Properties.Count > 0 || obj.Trivia.ContainedComments?.Count > 0)
+        if(obj.Properties.Count == 0 && obj.Trivia.ContainedComments?.Count > 0)
+        {
+            WriteComments(obj.Trivia.ContainedComments);
+            Append(Environment.NewLine);
+        }
+        else if (obj.Properties.Count > 0)
         {
             WriteComments(
                 obj.Properties.First().Value.Trivia.LeadingComments
@@ -166,7 +170,7 @@ internal class JsonWriter(SerializerSettings settings)
                     WriteIndent();
                     if(WriteComments(
                         prop.Trivia.LeadingComments
-                            .Where(e => e.LeadingNewline), 
+                            ?.Where(e => e.LeadingNewline), 
                         true
                     ))
                     {

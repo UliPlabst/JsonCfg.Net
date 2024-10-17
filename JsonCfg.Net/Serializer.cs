@@ -90,7 +90,7 @@ internal class JsonWriter(SerializerSettings settings)
     
     public void WriteObject(JsonObject obj, WriteOptions? options = null)
     {
-        if (obj.FormattingHint == FormattingHint.Inline && obj.WillBreakLine)
+        if (obj.FormattingHint == FormattingHint.Inline && !obj.WillBreakLine)
         {
             WriteObjectInline(obj, options);
         }

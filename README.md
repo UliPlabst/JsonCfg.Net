@@ -73,9 +73,7 @@ Console.WriteLine(json);
 //   "hello": "world", //I am a comment
 //   "test": /*i am an inline comment */ false,
 //   "value": 123,
-//   "new": {
-//     "prop": true
-//   }
+//   "new": { "prop": true }
 // }
 ```
 

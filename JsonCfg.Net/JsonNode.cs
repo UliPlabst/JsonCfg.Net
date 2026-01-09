@@ -191,6 +191,8 @@ public class JsonObject: JsonNode, IDictionary<string, JsonNode>
         }
         set 
         {
+            if(value is JsonProperty)
+                throw new ArgumentException("Value cannot be a JsonProperty", nameof(value));
             if(Properties.TryGetValue(key, out var prop))
             {
                 prop.Value = value;

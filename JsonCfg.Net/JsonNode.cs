@@ -165,7 +165,7 @@ public class JsonObject: JsonNode, IDictionary<string, JsonNode>
     }
 
     public IEnumerator<KeyValuePair<string, JsonNode>> GetEnumerator() 
-        => Properties.Select(e => new KeyValuePair<string, JsonNode>(e.Key, e.Value)).GetEnumerator();
+        => Properties.Select(e => new KeyValuePair<string, JsonNode>(e.Key, e.Value.Value)).GetEnumerator();
 
     public bool Remove(string key) => Properties.Remove(key);
     public bool Remove(KeyValuePair<string, JsonNode> item) => Remove(item.Key);

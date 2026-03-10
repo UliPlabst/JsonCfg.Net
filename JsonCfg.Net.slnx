@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="JsonCfg.Net.Debug/JsonCfg.Net.Debug.csproj" />
+  <Project Path="JsonCfg.Net.Tests/JsonCfg.Net.Tests.csproj" />
+  <Project Path="JsonCfg.Net/JsonCfg.Net.csproj" />
+</Solution>
